@@ -45,9 +45,9 @@ http.request({
             done(error)
           } else if (unshortened !== post.href) {
             runSeries([
-              // Create a new post the same as the old post, but for the
+              // Add a new post the same as the old post, but for the
               // unshortened URL.
-              createReplacementPost.bind(null, post, unshortened),
+              addReplacementPost.bind(null, post, unshortened),
               //  Delete the old, shortened-URL post.
               deletePost.bind(null, post)
             ], function (error) {
@@ -114,7 +114,7 @@ function deletePost (post, callback) {
   }, callback)
 }
 
-function createReplacementPost (post, unshortened, callback) {
+function addReplacementPost (post, unshortened, callback) {
   sendRequest({
     path: '/v1/posts/add?' + querystring.stringify({
       auth_token: TOKEN,
