@@ -74,7 +74,9 @@ http.request({
   })
   .end()
 
-var SHORTENER_HOSTNAMES = ['t.co', 'bit.ly', 'goo.gl', 'owl.ly']
+var SHORTENER_HOSTNAMES = [
+  't.co', 'bit.ly', 'goo.gl', 'owl.ly', 'buff.ly'
+]
 
 function isShortenedPost (post) {
   return SHORTENER_HOSTNAMES.indexOf(parse(post.href).hostname) !== -1
