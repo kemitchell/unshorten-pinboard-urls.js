@@ -43,7 +43,7 @@ http.request({
         unshorten(post.href, function (error, unshortened) {
           if (error) {
             done(error)
-          } else {
+          } else if (unshortened !== post.href) {
             runSeries([
               // Create a new post the same as the old post, but for the
               // unshortened URL.
@@ -59,6 +59,8 @@ http.request({
                 done()
               }
             })
+          } else {
+            done()
           }
         })
       }),
