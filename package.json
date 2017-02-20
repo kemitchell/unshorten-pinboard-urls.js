@@ -1,0 +1,16 @@
+{
+  "name": "unshorten-pinboard-urls",
+  "description": "unoshorten URLs in Pinboard posts",
+  "version": "0.0.0",
+  "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
+  "bin": "unoshorten-pinboard-urls",
+  "dependencies": {
+    "flush-write-stream": "^1.0.2",
+    "http-https": "^1.0.0",
+    "json-array-streams": "^1.0.1",
+    "pump": "^1.0.2",
+    "run-series": "^1.1.4"
+  },
+  "license": "MIT",
+  "repository": "kemitchell/unshorten-pinboard-urls.js"
+}
