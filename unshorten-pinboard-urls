@@ -15,10 +15,12 @@ if (!TOKEN) {
   process.exit(1)
 }
 
+var PINBOARD_API = 'api.pinboard.in'
+
 // Request all of the Pinboard user's posts in JSON format.
 http.request({
   protocol: 'https:',
-  host: 'api.pinboard.in',
+  host: PINBOARD_API,
   path: '/v1/posts/all?' + querystring.stringify({
     auth_token: TOKEN,
     format: 'json'
@@ -133,7 +135,7 @@ function addReplacementPost (post, unshortened, callback) {
 
 function sendRequest (options, callback) {
   options.protocol = 'https:'
-  options.host = 'api.pinboard.in'
+  options.host = PINBOARD_API
   http.request(options)
     .once('response', function (response) {
       var status = response.statusCode
