@@ -108,7 +108,6 @@ function deletePost (post, callback) {
   sendRequest({
     path: '/v1/posts/delete?' + querystring.stringify({
       auth_token: TOKEN,
-      format: 'json',
       url: post.href
     })
   }, callback)
@@ -118,7 +117,6 @@ function addReplacementPost (post, unshortened, callback) {
   sendRequest({
     path: '/v1/posts/add?' + querystring.stringify({
       auth_token: TOKEN,
-      format: 'json',
       url: unshortened,
       description: post.description,
       extended: post.extended,
