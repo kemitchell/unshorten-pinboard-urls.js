@@ -1,9 +1,9 @@
 {
   "name": "unshorten-pinboard-urls",
-  "description": "unoshorten URLs in Pinboard posts",
+  "description": "unshorten URLs in Pinboard posts",
   "version": "1.0.0",
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
-  "bin": "unoshorten-pinboard-urls",
+  "bin": "unshorten-pinboard-urls",
   "dependencies": {
     "flush-write-stream": "^1.0.2",
     "http-https": "^1.0.0",
