@@ -2,6 +2,7 @@
 var flushWriteStream = require('flush-write-stream')
 var http = require('http-https')
 var jsonArrayStreams = require('json-array-streams')
+var multistream = require('multistream')
 var parse = require('url').parse
 var pump = require('pump')
 var querystring = require('querystring')
@@ -17,32 +18,61 @@ if (!TOKEN) {
 
 var PINBOARD_API = 'api.pinboard.in'
 
+var RESULTS_PER_REQUEST = 200
+var requestCount = 0
+
 // Request all of the Pinboard user's posts in JSON format.
-http.request({
-  protocol: 'https:',
-  host: PINBOARD_API,
-  path: '/v1/posts/all?' + querystring.stringify({
-    auth_token: TOKEN,
-    format: 'json'
-  })
-})
-  .once('response', function (response) {
-    pump(
-      response,
-      // The Pinboard API responds with a JSON Array.
-      // Each Object in the Array is a post.
-      jsonArrayStreams.parse(),
-      // Filter out only those posts with short-URL HREFs.
-      through2.obj(function (post, _, done) {
-        if (isShortenedPost(post)) {
-          this.push(post)
-        }
-        done()
-      }),
-      // For each short-URL post:
-      flushWriteStream.obj(function (post, _, done) {
-        // Unshorten the short URL.
-        unshorten(post.href, function (error, unshortened) {
+pump(
+  multistream(function (callback) {
+    if (requestCount === 100) {
+      callback(null, null)
+    } else {
+      http.request({
+        protocol: 'https:',
+        host: PINBOARD_API,
+        path: '/v1/posts/all?' + querystring.stringify({
+          auth_token: TOKEN,
+          results: RESULTS_PER_REQUEST,
+          start: requestCount * RESULTS_PER_REQUEST,
+          format: 'json'
+        })
+      })
+        .once('response', function (response) {
+          console.log({
+            count: requestCount,
+            start: requestCount * RESULTS_PER_REQUEST
+          })
+          console.log(response.headers)
+          requestCount++
+          callback(null, response)
+        })
+        .end()
+    }
+  }),
+  // The Pinboard API responds with a JSON Array.
+  // Each Object in the Array is a post.
+  jsonArrayStreams.parse(),
+  // Filter out only those posts with short-URL HREFs.
+  through2.obj(function (post, _, done) {
+    if (isShortenedPost(post)) {
+      this.push(post)
+    }
+    done()
+  }),
+  // For each short-URL post:
+  flushWriteStream.obj(function (post, _, done) {
+    // Unshorten the short URL.
+    unshorten(post.href, function (error, unshortened) {
+      if (error) {
+        done(error)
+      } else if (unshortened !== post.href) {
+        runSeries([
+          // Add a new post the same as the old post, but for the
+          // unshortened URL.
+          addReplacementPost.bind(null, post, unshortened),
+          //  Delete the old, shortened-URL post.
+          deletePost.bind(null, post)
+        ], function (error) {
           if (error) {
             done(error)
           } else if (unshortened !== post.href) {
@@ -61,21 +91,24 @@ http.request({
                 done()
               }
             })
-          } else { // unshortened === post.href
-            // Could not unshorten the URL.  Do nothing.
+          } else {
+            // Log a message for each post replaced.
+            console.log('%s    =>    %s', post.href, unshortened)
             done()
           }
         })
-      }),
-      function (error) {
-        if (error) {
-          console.error(error)
-          process.exit(1)
-        }
+      } else {
+        done()
       }
-    )
-  })
-  .end()
+    })
+  }),
+  function (error) {
+    if (error) {
+      console.error(error)
+      process.exit(1)
+    }
+  }
+)
 
 var SHORTENER_HOSTNAMES = [
   't.co', 'bit.ly', 'goo.gl', 'owl.ly', 'buff.ly'
