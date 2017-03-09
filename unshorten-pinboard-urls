@@ -61,7 +61,8 @@ http.request({
                 done()
               }
             })
-          } else {
+          } else { // unshortened === post.href
+            // Could not unshorten the URL.  Do nothing.
             done()
           }
         })
@@ -96,6 +97,7 @@ function unshorten (url, callback) {
     path: parsed.pathname
   }
   http.request(options)
+    .once('error', callback)
     .once('response', function (response) {
       var location = response.headers.location
       if (location) {
@@ -104,7 +106,6 @@ function unshorten (url, callback) {
         callback(null, url)
       }
     })
-    .once('error', callback)
     .end()
 }
 
@@ -117,19 +118,21 @@ function deletePost (post, callback) {
   }, callback)
 }
 
+var POST_PROPERTIES = [
+  'description', 'extended', 'tags', 'time', 'shared', 'toread'
+]
+
 function addReplacementPost (post, unshortened, callback) {
+  var query = {
+    auth_token: TOKEN,
+    url: unshortened,
+    replace: 'no'
+  }
+  POST_PROPERTIES.forEach(function (key) {
+    query[key] = post[key]
+  })
   sendRequest({
-    path: '/v1/posts/add?' + querystring.stringify({
-      auth_token: TOKEN,
-      url: unshortened,
-      description: post.description,
-      extended: post.extended,
-      tags: post.tags,
-      dt: post.time,
-      shared: post.shared,
-      toread: post.toread,
-      replace: 'no'
-    })
+    path: '/v1/posts/add?' + querystring.stringify(query)
   }, callback)
 }
 
@@ -137,6 +140,7 @@ function sendRequest (options, callback) {
   options.protocol = 'https:'
   options.host = PINBOARD_API
   http.request(options)
+    .once('error', callback)
     .once('response', function (response) {
       var status = response.statusCode
       if (status === 200) {
@@ -145,6 +149,5 @@ function sendRequest (options, callback) {
         callback(new Error('The server responded ' + status + '.'))
       }
     })
-    .once('error', callback)
-  .end()
+    .end()
 }
