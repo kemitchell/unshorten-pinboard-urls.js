@@ -68,9 +68,8 @@ pump(
   flushWriteStream.obj(function (post, _, done) {
     // Unshorten the short URL.
     unshorten(post.href, function (error, unshortened) {
-      if (error) {
-        done(error)
-      } else if (unshortened !== post.href) {
+      if (error) return done(error)
+      if (unshortened !== post.href) {
         runSeries([
           // Add a new post the same as the old post, but for the
           // unshortened URL.
@@ -78,9 +77,8 @@ pump(
           //  Delete the old, shortened-URL post.
           deletePost.bind(null, post)
         ], function (error) {
-          if (error) {
-            done(error)
-          } else if (unshortened !== post.href) {
+          if (error) return done(error)
+          if (unshortened !== post.href) {
             runSeries([
               // Add a new post the same as the old post, but for the
               // unshortened URL.
