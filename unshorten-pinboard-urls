@@ -53,9 +53,11 @@ pump(
         .end()
     }
   }),
+
   // The Pinboard API responds with a JSON Array.
   // Each Object in the Array is a post.
   jsonArrayStreams.parse(),
+
   // Filter out only those posts with short-URL HREFs.
   through2.obj(function (post, _, done) {
     postsFromLastStream++
@@ -64,6 +66,7 @@ pump(
     }
     done()
   }),
+
   // For each short-URL post:
   flushWriteStream.obj(function (post, _, done) {
     // Unshorten the short URL.
@@ -105,6 +108,7 @@ pump(
       }
     })
   }),
+
   function (error) {
     if (error) {
       console.error(error)
