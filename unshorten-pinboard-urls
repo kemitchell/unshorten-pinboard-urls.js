@@ -109,21 +109,15 @@ function isShortenedPost (post) {
 function unshorten (url, callback) {
   var parsed = parse(url)
   var protocol = parsed.protocol
-  var options = {
+  http.request({
     method: 'HEAD',
     protocol: protocol,
     host: parsed.host,
     path: parsed.pathname
-  }
-  http.request(options)
+  })
     .once('error', callback)
     .once('response', function (response) {
-      var location = response.headers.location
-      if (location) {
-        callback(null, location)
-      } else {
-        callback(null, url)
-      }
+      callback(null, response.headers.location || url)
     })
     .end()
 }
