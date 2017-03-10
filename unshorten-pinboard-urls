@@ -78,24 +78,9 @@ pump(
           deletePost.bind(null, post)
         ], function (error) {
           if (error) return done(error)
-          if (unshortened !== post.href) {
-            runSeries([
-              // Add a new post the same as the old post, but for the
-              // unshortened URL.
-              addReplacementPost.bind(null, post, unshortened),
-              //  Delete the old, shortened-URL post.
-              deletePost.bind(null, post)
-            ], function (error) {
-              if (error) return done(error)
-              // Log a message for each post replaced.
-              console.log('%s    =>    %s', post.href, unshortened)
-              done()
-            })
-          } else {
-            // Log a message for each post replaced.
-            console.log('%s    =>    %s', post.href, unshortened)
-            done()
-          }
+          // Log a message for each post replaced.
+          console.log('%s    =>    %s', post.href, unshortened)
+          done()
         })
       } else {
         done()
