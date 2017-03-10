@@ -27,31 +27,28 @@ var postsFromLastStream = null
 // Request all of the Pinboard user's posts in JSON format.
 pump(
   multistream(function (callback) {
-    if (postsFromLastStream === 0) {
-      callback(null, null)
-    } else {
-      http.request({
-        protocol: 'https:',
-        host: PINBOARD_API,
-        path: '/v1/posts/all?' + querystring.stringify({
-          auth_token: TOKEN,
-          results: RESULTS_PER_REQUEST,
-          start: requestCount * RESULTS_PER_REQUEST,
-          format: 'json'
-        })
+    if (postsFromLastStream === 0) return callback(null, null)
+    http.request({
+      protocol: 'https:',
+      host: PINBOARD_API,
+      path: '/v1/posts/all?' + querystring.stringify({
+        auth_token: TOKEN,
+        results: RESULTS_PER_REQUEST,
+        start: requestCount * RESULTS_PER_REQUEST,
+        format: 'json'
       })
-        .once('error', callback)
-        .once('response', function (response) {
-          requestCount++
-          // Reset the posts counter when this stream begins sending
-          // post data.
-          response.once('data', function () {
-            postsFromLastStream = 0
-          })
-          callback(null, response)
+    })
+      .once('error', callback)
+      .once('response', function (response) {
+        requestCount++
+        // Reset the posts counter when this stream begins sending
+        // post data.
+        response.once('data', function () {
+          postsFromLastStream = 0
         })
-        .end()
-    }
+        callback(null, response)
+      })
+      .end()
   }),
 
   // The Pinboard API responds with a JSON Array.
@@ -89,13 +86,10 @@ pump(
               //  Delete the old, shortened-URL post.
               deletePost.bind(null, post)
             ], function (error) {
-              if (error) {
-                done(error)
-              } else {
-                // Log a message for each post replaced.
-                console.log('%s    =>    %s', post.href, unshortened)
-                done()
-              }
+              if (error) return done(error)
+              // Log a message for each post replaced.
+              console.log('%s    =>    %s', post.href, unshortened)
+              done()
             })
           } else {
             // Log a message for each post replaced.
