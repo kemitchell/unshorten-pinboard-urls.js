@@ -18,13 +18,16 @@ if (!TOKEN) {
 
 var PINBOARD_API = 'api.pinboard.in'
 
-var RESULTS_PER_REQUEST = 200
+var RESULTS_PER_REQUEST = 100
 var requestCount = 0
+// In order to tell when to stop issuing new requests with incremented
+// `start` positions, count the number of posts from each response.
+var postsFromLastStream = 0
 
 // Request all of the Pinboard user's posts in JSON format.
 pump(
   multistream(function (callback) {
-    if (requestCount === 100) {
+    if (postsFromLastStream === 0) {
       callback(null, null)
     } else {
       http.request({
@@ -37,13 +40,14 @@ pump(
           format: 'json'
         })
       })
+        .once('error', callback)
         .once('response', function (response) {
-          console.log({
-            count: requestCount,
-            start: requestCount * RESULTS_PER_REQUEST
-          })
-          console.log(response.headers)
           requestCount++
+          // Reset the posts counter when this stream begins sending
+          // post data.
+          response.once('data', function () {
+            postsFromLastStream = 0
+          })
           callback(null, response)
         })
         .end()
@@ -54,6 +58,7 @@ pump(
   jsonArrayStreams.parse(),
   // Filter out only those posts with short-URL HREFs.
   through2.obj(function (post, _, done) {
+    postsFromLastStream++
     if (isShortenedPost(post)) {
       this.push(post)
     }
