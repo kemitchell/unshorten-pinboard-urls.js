@@ -22,7 +22,7 @@ var RESULTS_PER_REQUEST = 100
 var requestCount = 0
 // In order to tell when to stop issuing new requests with incremented
 // `start` positions, count the number of posts from each response.
-var postsFromLastStream = 0
+var postsFromLastStream = null
 
 // Request all of the Pinboard user's posts in JSON format.
 pump(
