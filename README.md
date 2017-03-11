@@ -6,3 +6,11 @@ with fully resolved, unshortened URLs.
 npm install --global unshorten-pinboard-urls
 PINBOARD_TOKEN="..." unshorten-pinboard-urls
 ```
+
+Works great as a cron job:
+
+```cron
+# Minute  Hour  DOM  Month  DOW  Command
+# ------  ----  ---  -----  ---  -------
+0         */4   *    *      *    unshorten-pinboard-urls >/dev/null 2>&1
+```
