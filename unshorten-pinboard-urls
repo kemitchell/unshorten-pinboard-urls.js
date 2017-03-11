@@ -130,13 +130,14 @@ function deletePost (post, callback) {
 }
 
 var POST_PROPERTIES = [
-  'description', 'extended', 'tags', 'time', 'shared', 'toread'
+  'description', 'extended', 'tags', 'shared', 'toread'
 ]
 
 function addReplacementPost (post, unshortened, callback) {
   var query = {
     auth_token: TOKEN,
     url: unshortened,
+    dt: post.time,
     replace: 'no'
   }
   POST_PROPERTIES.forEach(function (key) {
