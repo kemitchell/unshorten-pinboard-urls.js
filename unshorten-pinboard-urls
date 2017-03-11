@@ -43,9 +43,7 @@ pump(
         requestCount++
         // Reset the posts counter when this stream begins sending
         // post data.
-        response.once('data', function () {
-          postsFromLastStream = 0
-        })
+        postsFromLastStream = 0
         callback(null, response)
       })
       .end()
