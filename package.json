@@ -1,7 +1,7 @@
 {
   "name": "unshorten-pinboard-urls",
   "description": "unshorten URLs in Pinboard posts",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
   "bin": "unshorten-pinboard-urls",
   "dependencies": {
