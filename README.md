@@ -1,6 +1,6 @@
-A short script that iterates your Pinboard.in bookmarks, replacing
-posts with shortened t.co, bit.ly, and other shortened URLS, with
-identical posts with the fully resolved, unshortened URL.
+A short script that iterates your Pinboard.in bookmarks, deleting
+shortened t.co, bit.ly, and other shortened URLS, and replacing them
+with fully resolved, unshortened URLs.
 
 ```bash
 npm install --global unshorten-pinboard-urls
