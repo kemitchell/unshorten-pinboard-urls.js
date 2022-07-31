@@ -5,7 +5,7 @@
   "author": "Kyle E. Mitchell <kyle@kemitchell.com> (https://kemitchell.com/)",
   "bin": "unshorten-pinboard-urls",
   "dependencies": {
-    "flush-write-stream": "^1.0.2",
+    "flush-write-stream": "^2.0.0",
     "http-https": "^1.0.0",
     "json-array-streams": "^1.0.1",
     "multistream": "^2.1.0",
