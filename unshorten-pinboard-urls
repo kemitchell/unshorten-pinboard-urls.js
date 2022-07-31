@@ -25,7 +25,7 @@ let postsFromLastStream = null
 
 // Request all of the Pinboard user's posts in JSON format.
 pump(
-  multistream(function (callback) {
+  multistream(callback => {
     if (postsFromLastStream === 0) return callback(null, null)
     http.request({
       protocol: 'https:',
@@ -38,7 +38,7 @@ pump(
       })
     })
       .once('error', callback)
-      .once('response', function (response) {
+      .once('response', response => {
         requestCount++
         // Reset the posts counter when this stream begins sending
         // post data.
@@ -62,9 +62,9 @@ pump(
   }),
 
   // For each short-URL post:
-  flushWriteStream.obj(function (post, _, done) {
+  flushWriteStream.obj((post, _, done) => {
     // Unshorten the short URL.
-    unshorten(post.href, function (error, unshortened) {
+    unshorten(post.href, (error, unshortened) => {
       if (error) return done(error)
       if (unshortened !== post.href) {
         runSeries([
@@ -73,7 +73,7 @@ pump(
           addReplacementPost.bind(null, post, unshortened),
           //  Delete the old, shortened-URL post.
           deletePost.bind(null, post)
-        ], function (error) {
+        ], error => {
           if (error) return done(error)
           // Log a message for each post replaced.
           console.log('%s    =>    %s', post.href, unshortened)
@@ -85,7 +85,7 @@ pump(
     })
   }),
 
-  function (error) {
+  error => {
     if (error) {
       console.error(error)
       process.exit(1)
@@ -112,7 +112,7 @@ function unshorten (url, callback) {
     pathname
   })
     .once('error', callback)
-    .once('response', function (response) {
+    .once('response', response => {
       callback(null, response.headers.location || url)
     })
     .end()
@@ -138,7 +138,7 @@ function addReplacementPost (post, unshortened, callback) {
     dt: post.time,
     replace: 'no'
   }
-  POST_PROPERTIES.forEach(function (key) {
+  POST_PROPERTIES.forEach(key => {
     query[key] = post[key]
   })
   sendRequest({
@@ -151,7 +151,7 @@ function sendRequest (options, callback) {
   options.host = PINBOARD_API
   http.request(options)
     .once('error', callback)
-    .once('response', function (response) {
+    .once('response', response => {
       const status = response.statusCode
       if (status === 200) {
         callback()
