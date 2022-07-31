@@ -1,28 +1,27 @@
 #!/usr/bin/env node
-var flushWriteStream = require('flush-write-stream')
-var http = require('http-https')
-var jsonArrayStreams = require('json-array-streams')
-var multistream = require('multistream')
-var parse = require('url').parse
-var pump = require('pump')
-var querystring = require('querystring')
-var runSeries = require('run-series')
-var through2 = require('through2')
+const flushWriteStream = require('flush-write-stream')
+const http = require('http-https')
+const jsonArrayStreams = require('json-array-streams')
+const multistream = require('multistream')
+const pump = require('pump')
+const querystring = require('querystring')
+const runSeries = require('run-series')
+const through2 = require('through2')
 
 // Read the Pinboard authentication token from the environment.
-var TOKEN = process.env.PINBOARD_TOKEN
+const TOKEN = process.env.PINBOARD_TOKEN
 if (!TOKEN) {
   process.stdout.write('Missing PINBOARD_TOKEN')
   process.exit(1)
 }
 
-var PINBOARD_API = 'api.pinboard.in'
+const PINBOARD_API = 'api.pinboard.in'
 
-var RESULTS_PER_REQUEST = 100
-var requestCount = 0
+const RESULTS_PER_REQUEST = 100
+let requestCount = 0
 // In order to tell when to stop issuing new requests with incremented
 // `start` positions, count the number of posts from each response.
-var postsFromLastStream = null
+let postsFromLastStream = null
 
 // Request all of the Pinboard user's posts in JSON format.
 pump(
@@ -94,24 +93,23 @@ pump(
   }
 )
 
-var SHORTENER_HOSTNAMES = [
+const SHORTENER_HOSTNAMES = [
   't.co', 'bit.ly', 'goo.gl', 'owl.ly', 'buff.ly'
 ]
 
 function isShortenedPost (post) {
-  return SHORTENER_HOSTNAMES.indexOf(parse(post.href).hostname) !== -1
+  return SHORTENER_HOSTNAMES.indexOf(new URL(post.href).hostname) !== -1
 }
 
 // Shorten a URL by sending a HEAD request and calling back with the
 // HTTP Location header value.
 function unshorten (url, callback) {
-  var parsed = parse(url)
-  var protocol = parsed.protocol
+  const { protocol, host, pathname } = new URL(url)
   http.request({
     method: 'HEAD',
-    protocol: protocol,
-    host: parsed.host,
-    path: parsed.pathname
+    protocol,
+    host,
+    pathname
   })
     .once('error', callback)
     .once('response', function (response) {
@@ -129,12 +127,12 @@ function deletePost (post, callback) {
   }, callback)
 }
 
-var POST_PROPERTIES = [
+const POST_PROPERTIES = [
   'description', 'extended', 'tags', 'shared', 'toread'
 ]
 
 function addReplacementPost (post, unshortened, callback) {
-  var query = {
+  const query = {
     auth_token: TOKEN,
     url: unshortened,
     dt: post.time,
@@ -154,7 +152,7 @@ function sendRequest (options, callback) {
   http.request(options)
     .once('error', callback)
     .once('response', function (response) {
-      var status = response.statusCode
+      const status = response.statusCode
       if (status === 200) {
         callback()
       } else {
