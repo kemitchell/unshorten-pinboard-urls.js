@@ -25,7 +25,7 @@ let postsFromLastStream = null
 
 // Request all of the Pinboard user's posts in JSON format.
 pump(
-  multistream(callback => {
+  new multistream(callback => {
     if (postsFromLastStream === 0) return callback(null, null)
     http.request({
       protocol: 'https:',
